@@ -26,19 +26,6 @@ HOMEWORK_VERDICTS = {
 }
 
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename='program.log',
-    format='%(asctime)s, %(levelname)s, %(message)s'
-)
-
-logging.debug('debug message')
-logging.info('info')
-logging.warning('warning')
-logging.error('error')
-logging.critical('critical')
-
-
 def check_tokens():
     """Проверка доступности переменных окружения."""
     available_tokens = [
@@ -61,9 +48,9 @@ def send_message(bot, message):
     """Отправка сообщения."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-        logging.debug('Сообщение успешно отправлено')
+        logging.debug('Сообщение {message} успешно отправлено')
     except KeyError:
-        logging.error('Ошибка отправки сообщения')
+        logging.error('Ошибка отправки сообщения {message}')
 
 
 def get_api_answer(timestamp):
@@ -119,11 +106,16 @@ def parse_status(homework):
     except ValueError:
         return 'Статус домашней работы отсутсвует'
     if status not in HOMEWORK_VERDICTS:
-        raise ValueError
+        raise ValueError(
+            'Переменная {status} не обнаружена'
+        )
     else:
         verdict = HOMEWORK_VERDICTS.get(status)
     if 'homework_name' not in homework:
-        raise KeyError
+        raise KeyError(
+            'Переменная homework_name не обнаружена'
+        )
+
     else:
         homework_name = homework.get('homework_name')
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
@@ -155,4 +147,9 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.DEBUG,
+        filename='program.log',
+        format='%(asctime)s, %(levelname)s, %(message)s'
+    )
     main()
